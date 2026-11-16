@@ -1,5 +1,6 @@
 import {
   createFakePluginHost,
+  makeHostResponse,
   makePluginAgentConfigurationContext,
   makeThreadResponse,
 } from "@get-bb/plugin-sdk/testing";
@@ -74,6 +75,67 @@ describe("Twombly plugin", () => {
           input: { cwd: "/workspace/design", args: ["check", "out"] },
         }),
       );
+    } finally {
+      await harness.lifecycle.dispose();
+    }
+  });
+  it("lists the stored canvases and gives a link when no BB browser can open one", async () => {
+    const callHost = vi.fn(async ({ method }: { method: string }) =>
+      method === "library"
+        ? {
+            running: true,
+            account: { id: "user-1", email: "person@example.com", name: null },
+            canvases: [
+              {
+                url: "https://twombly.app/c/example-board",
+                name: "Example board",
+                frames: 3,
+                favorite: false,
+                shared: true,
+                createdAt: 1,
+                updatedAt: 2,
+                thumbnailPath: null,
+              },
+            ],
+          }
+        : [],
+    );
+    const { bb, harness } = createFakePluginHost({
+      pluginId: "twombly",
+      agentSkillIds: ["twombly"],
+      experimental_callHostRpc: callHost,
+    });
+    harness.sdk.stub("hosts.list", async () => [
+      makeHostResponse({ id: "mac", name: "Mac", status: "connected" }),
+    ]);
+    harness.sdk.stub("experimental_desktopBrowsers.listInstances", async () => ({
+      instances: [],
+    }));
+    try {
+      plugin(bb);
+      const listed = await harness.behavior.runCli(["library-refresh"]);
+      expect(listed.exitCode).toBe(0);
+      expect(listed.stdout).toContain("Example board: https://twombly.app/c/example-board");
+      expect(listed.stdout).toContain("shared with you");
+      const asObject = (value: unknown) => {
+        if (typeof value === "string") throw new Error("Expected a structured result.");
+        return value as { isError: boolean; content: unknown };
+      };
+      const opened = asObject(await harness.behavior.callAgentTool(
+        "twombly_open_canvas",
+        { canvas: "example" },
+        { threadId: "thread-test" },
+      ));
+      expect(opened.isError).toBe(false);
+      expect(JSON.stringify(opened.content)).toContain(
+        "[Example board](https://twombly.app/c/example-board)",
+      );
+      const missing = asObject(await harness.behavior.callAgentTool(
+        "twombly_open_canvas",
+        { canvas: "nothing like this" },
+        { threadId: "thread-test" },
+      ));
+      expect(missing.isError).toBe(true);
     } finally {
       await harness.lifecycle.dispose();
     }

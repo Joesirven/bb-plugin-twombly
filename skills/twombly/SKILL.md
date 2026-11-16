@@ -36,6 +36,15 @@ credentials, environment files or customer records. Share only when the user
 explicitly asks. The plugin does not install upstream hooks or other agent
 plugins. Its `hooks`, `upgrade`, `mcp` and internal daemon commands are blocked.
 
+## Canvas list
+
+BB keeps a list of every canvas that the signed-in Twombly account owns or that other people share with it. The BB server stores the list. It reads the list again from each connected machine every 10 minutes and when the plugin starts. It reads only from a Twombly service that already runs on port 4747. It never starts Twombly to read the list.
+
+- Use `twombly_library` to find a canvas. Give `query` to filter by name.
+- Use `twombly_open_canvas` with the exact name, part of the name, or the link to open a canvas in the BB desktop browser. If no desktop browser is available, give the user the returned markdown link.
+- The command line has the same functions: `bb twombly library [NAME]`, `bb twombly library-refresh` and `bb twombly library-open NAME_OR_LINK`.
+- The Twombly icon in the left navigation opens the list as a grid or as lines. It shows "Your canvases" and "Shared with you".
+
 ## Sign-in and Apple Passwords
 
 The panel's **Sign in to Twombly** button opens the execution machine's sign-in

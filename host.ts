@@ -1,10 +1,28 @@
 import { experimental_defineHostEntry } from "@get-bb/plugin-sdk";
 import { hostContract, loginSchema } from "./contract.js";
+import { readLibrary, readThumbnails } from "./library.js";
 import { runTwombly } from "./runner.js";
 
 export default experimental_defineHostEntry({
   contract: hostContract,
   handlers: {
+    library: (_input, context) =>
+      readLibrary(
+        AbortSignal.any([
+          context.signal,
+          context.lifecycle.signal,
+          AbortSignal.timeout(20_000),
+        ]),
+      ),
+    thumbnails: ({ paths }, context) =>
+      readThumbnails(
+        paths,
+        AbortSignal.any([
+          context.signal,
+          context.lifecycle.signal,
+          AbortSignal.timeout(30_000),
+        ]),
+      ),
     async beginLogin({ cwd }, context) {
       const signal = AbortSignal.any([
         context.signal,

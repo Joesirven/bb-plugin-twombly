@@ -17,6 +17,12 @@ opens a validated link in BB. Its loopback callback requires the browser and
 execution host to be the same Mac. The login endpoint is checked against
 Twombly 0.5.1. A future incompatible response returns an error.
 
+The Twombly icon in the left navigation lists every canvas that the signed-in
+account owns or that others share with it, as a grid or as lines. The BB server
+stores the list and reads it again every 10 minutes. Agents use the
+`twombly_library` and `twombly_open_canvas` tools. The command line has
+`bb twombly library`, `library-refresh` and `library-open`.
+
 See [the skill](skills/twombly/SKILL.md) for commands, the programmatic contract,
 data handling, machine requirements and limits. Automatic comment delivery
 and embedded canvas selection events are not implemented. Agents read those
