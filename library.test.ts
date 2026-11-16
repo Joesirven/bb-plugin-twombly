@@ -9,7 +9,7 @@ const canvas = (overrides: Record<string, unknown>) => ({
   favorite: false,
   createdAt: 1_000,
   updatedAt: 2_000,
-  thumbnailUrl: "/thumb/abcdefghjkmn.webp?v=3",
+  thumbnailUrl: "/thumb/abcdefghjkmn.webp?v=1a2b3c4d5e6f782d",
   ...overrides,
 });
 
@@ -37,7 +37,7 @@ describe("normalizeLibrary", () => {
       ["Older", false],
     ]);
     expect(result.canvases[0]!.thumbnailPath).toBeNull();
-    expect(result.canvases[2]!.thumbnailPath).toBe("/thumb/abcdefghjkmn.webp?v=3");
+    expect(result.canvases[2]!.thumbnailPath).toBe("/thumb/abcdefghjkmn.webp?v=1a2b3c4d5e6f782d");
   });
   it("rejects a changed service response instead of storing bad data", () => {
     expect(() =>

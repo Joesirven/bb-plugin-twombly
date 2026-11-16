@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const DAEMON_ORIGIN = "http://127.0.0.1:4747";
-const THUMBNAIL_PATH = /^\/thumb\/[a-z2-9]{12}\.webp(\?v=\d+)?$/;
+const THUMBNAIL_PATH = /^\/thumb\/[a-z2-9]{12}\.webp(\?v=[A-Za-z0-9_-]{1,64})?$/;
 const MAX_THUMBNAIL_BYTES = 256 * 1024;
 
 const daemonCanvasSchema = z.object({
