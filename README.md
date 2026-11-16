@@ -12,9 +12,11 @@ release. BB adapter updates remain separate.
 
 The panel opens sign-in in the client's preferred browser. Each execution
 machine signs in to one Twombly account, and every thread on that machine
-uses it. The sign-in callback goes to port 4747 on the loopback address of
+uses it. The sign-in callback goes to the machine's Twombly port (4747, or
+`TWOMBLY_PORT` in the host daemon's environment) on the loopback address of
 the computer that opens the link. For a remote execution machine, forward
-that port with SSH first. The skill gives the steps. A password manager
+that port with SSH first. If several operating-system users run BB machines
+on one computer, give each user a different `TWOMBLY_PORT`. The skill gives the steps. A password manager
 plugin, such as Apple Passwords, can fill the Google sign-in page. The login
 endpoint is checked against Twombly 0.5.1. A future incompatible response
 returns an error.

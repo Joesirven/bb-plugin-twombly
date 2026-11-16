@@ -38,7 +38,7 @@ plugins. Its `hooks`, `upgrade`, `mcp` and internal daemon commands are blocked.
 
 ## Canvas list
 
-BB keeps a list of every canvas that the signed-in Twombly account owns or that other people share with it. The BB server stores the list. It reads the list again from each connected machine every 10 minutes and when the plugin starts. It reads only from a Twombly service that already runs on port 4747. It never starts Twombly to read the list.
+BB keeps a list of every canvas that the signed-in Twombly account owns or that other people share with it. The BB server stores the list. It reads the list again from each connected machine every 10 minutes and when the plugin starts. It reads only from a Twombly service that already runs on the machine's Twombly port (4747 by default). It never starts Twombly to read the list.
 
 - Use `twombly_library` to find a canvas. Give `query` to filter by name.
 - Use `twombly_open_canvas` with the exact name, part of the name, or the link to open a canvas in the BB desktop browser. If no desktop browser is available, give the user the returned markdown link.
@@ -48,10 +48,18 @@ BB keeps a list of every canvas that the signed-in Twombly account owns or that 
 ## Sign-in and accounts
 
 Each execution machine signs in to one Twombly account. Twombly keeps the
-sign-in for the operating-system user that runs BB on that machine. Every
-thread on that machine uses that account, whoever started the thread. If
-people need separate Twombly accounts, run their threads on separate
-execution machines, or share canvases with their own accounts.
+sign-in in the home folder of the operating-system user that runs the BB
+machine. Every thread on that machine uses that account, whoever started the
+thread. BB does not record which person starts a thread. If people need
+separate Twombly accounts, give each person an execution machine that runs
+as their own operating-system user, or share canvases with their accounts.
+
+Several operating-system users can run BB machines on one computer. Each
+user's Twombly service listens on the shared loopback address, so each user
+needs a different port. Set `TWOMBLY_PORT` (1024 to 65535) in the
+environment of that user's BB host daemon, for example `TWOMBLY_PORT=4748`.
+The plugin then uses that port for commands, sign-in and the canvas list.
+If it is not set, the port is 4747.
 
 The BB server keeps one canvas list for all of its users. It shows the
 canvases of every account that is signed in on a connected machine. On a
@@ -59,14 +67,16 @@ shared server, every user can see that list.
 
 Website sign-in and the execution machine's Twombly account are separate.
 Use `bb twombly login` or the panel's **Sign in to Twombly** button to get
-the machine's sign-in link. The login callback goes to port 4747 on the
-loopback address of the computer that opens the link. Use one of these
+the machine's sign-in link. The login callback goes to the machine's Twombly
+port on the loopback address of the computer that opens the link. The port
+is in the link as `port=`. Use one of these
 methods:
 
 - If the browser runs on the execution machine, open the link there.
 - If the execution machine is a remote server, first forward the port from
-  your computer: `ssh -N -L 4747:127.0.0.1:4747 USER@EXECUTION_MACHINE`.
-  Make sure that no local Twombly service uses port 4747. Then open the link
+  your computer: `ssh -N -L PORT:127.0.0.1:PORT USER@EXECUTION_MACHINE`,
+  with the port from the link. Make sure that no local Twombly service uses
+  that port. Then open the link
   on your computer.
 
 Verify success with `bb twombly status`, without inspecting credential files.

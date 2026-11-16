@@ -94,7 +94,8 @@ function TwomblyPanel({ threadId }: ExperimentalThreadActionTabProps) {
       <p className="text-sm text-muted-foreground">
         This machine uses one Twombly account for every thread that runs on
         it. Open the sign-in link on the machine that runs this thread. If
-        that machine is remote, forward port 4747 to it with SSH first.
+        that machine is remote, forward the port in the link to it with SSH
+        first.
       </p>
       <p className="text-sm text-muted-foreground">
         A password manager plugin, such as Apple Passwords, can fill the

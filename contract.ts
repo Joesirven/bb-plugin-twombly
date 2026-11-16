@@ -7,6 +7,7 @@ import {
   thumbnailsInputSchema,
   thumbnailsOutputSchema,
 } from "./library.js";
+import { isPortText } from "./port.js";
 
 export const argumentsSchema = z.array(z.string().max(100_000)).min(1).max(128);
 export const resultSchema = z.object({
@@ -25,7 +26,7 @@ export const loginSchema = z.discriminatedUnion("signedIn", [
         url.pathname === "/auth/machine/start" &&
         !url.username &&
         !url.password &&
-        url.searchParams.get("port") === "4747" &&
+        isPortText(url.searchParams.get("port")) &&
         !!url.searchParams.get("state") &&
         !!url.searchParams.get("challenge")
       );
