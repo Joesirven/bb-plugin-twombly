@@ -45,20 +45,37 @@ BB keeps a list of every canvas that the signed-in Twombly account owns or that 
 - The command line has the same functions: `bb twombly library [NAME]`, `bb twombly library-refresh` and `bb twombly library-open NAME_OR_LINK`.
 - The Twombly icon in the left navigation opens the list as a grid or as lines. It shows "Your canvases" and "Shared with you".
 
-## Sign-in and Apple Passwords
+## Sign-in and accounts
 
-The panel's **Sign in to Twombly** button opens the execution machine's sign-in
-link through BB's browser preference. In the BB desktop browser, use the Apple Passwords toolbar key on
-the Google login page. The Apple Passwords plugin and its paired Mac companion
-must be enabled and connected. The user selects a login and confirms Touch ID.
-Never read a password, type a pairing code, or automate Touch ID.
+Each execution machine signs in to one Twombly account. Twombly keeps the
+sign-in for the operating-system user that runs BB on that machine. Every
+thread on that machine uses that account, whoever started the thread. If
+people need separate Twombly accounts, run their threads on separate
+execution machines, or share canvases with their own accounts.
+
+The BB server keeps one canvas list for all of its users. It shows the
+canvases of every account that is signed in on a connected machine. On a
+shared server, every user can see that list.
 
 Website sign-in and the execution machine's Twombly account are separate.
-Use `bb twombly login` to get the machine's sign-in link. Open it in the BB
-desktop browser on that same Mac. A running Twombly daemon started outside
-BB may also open the default browser. The login callback must reach the
-execution machine's loopback port. Do not use this flow across two machines.
+Use `bb twombly login` or the panel's **Sign in to Twombly** button to get
+the machine's sign-in link. The login callback goes to port 4747 on the
+loopback address of the computer that opens the link. Use one of these
+methods:
+
+- If the browser runs on the execution machine, open the link there.
+- If the execution machine is a remote server, first forward the port from
+  your computer: `ssh -N -L 4747:127.0.0.1:4747 USER@EXECUTION_MACHINE`.
+  Make sure that no local Twombly service uses port 4747. Then open the link
+  on your computer.
+
 Verify success with `bb twombly status`, without inspecting credential files.
+A running Twombly daemon started outside BB may also open the default browser.
+
+If a password manager plugin is enabled, the user can fill the Google
+sign-in page with it. For example, the Apple Passwords plugin adds a toolbar
+key in the BB desktop browser when its paired Mac companion is connected.
+Never read a password, type a pairing code, or automate Touch ID.
 
 ## Updates and limits
 
@@ -76,11 +93,3 @@ link or `signedIn: true`. It uses the local Twombly login endpoint, verified
 against version 0.5.1. Unexpected response shapes fail closed. The same operation powers the command, panel and
 agent tool. Disable the plugin to withdraw its skill and tool at the next safe
 agent session restart.
-
-## Language rule
-
-Never use unexplained acronyms in anything written here or in any agent-facing instruction: spell out "knowledge base", "decision record", "work in progress", "the server ba-sing-se", and so on. Universally-lexicalized technical names (URL, JSON, SSH, API, iOS) and literal identifiers that must match files or code (for example the decision files named `DEC-2026-00N-*`) are allowed, glossed in plain words on first mention. Carry this rule verbatim into every AGENTS.md, CLAUDE.md, skill, or prompt you write or update.
-
-1. No nicknames or invented shorthand for tasks, concepts, projects, or things unless Jose introduced the name himself. Use the full, established name every time: the file name, the stream name Jose used, the product name. A coined codename or abbreviation of convenience is a name the reader has to reverse-engineer.
-2. Em-dashes sparingly. Not banned, but rare: prefer commas, periods, colons, or parentheses. Most paragraphs should have zero; never more than one per paragraph.
-3. Write in ASD-STE100 Simplified Technical English (the aerospace maintenance controlled-language standard). If full compliance is too rigid, write 80% of the way to ASD-STE100. One idea per sentence. Keep sentences short. Active voice. Use commands for procedures. One meaning per word. Prefer simple words (start, not commence). No contractions. Avoid semicolons. Put the condition first: If X, then do Y. This applies to replies, agent-facing instructions, and knowledge-base prose you write. Do not rewrite source code, quoted material, or identifiers that must match files.

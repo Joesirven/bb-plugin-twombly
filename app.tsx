@@ -92,12 +92,14 @@ function TwomblyPanel({ threadId }: ExperimentalThreadActionTabProps) {
         </p>
       )}
       <p className="text-sm text-muted-foreground">
-        In the BB desktop browser, use the Apple Passwords key button on the
-        Google sign-in page. Confirm the selected login on your Mac.
+        This machine uses one Twombly account for every thread that runs on
+        it. Open the sign-in link on the machine that runs this thread. If
+        that machine is remote, forward port 4747 to it with SSH first.
       </p>
       <p className="text-sm text-muted-foreground">
-        Sign in on the Mac that runs this thread. After login, select Sign in
-        again to check the result.
+        A password manager plugin, such as Apple Passwords, can fill the
+        Google sign-in page. After login, select Sign in again to check the
+        result.
       </p>
       <p className="text-sm text-muted-foreground">
         Twombly checks for its latest release when a command runs. Frames upload
