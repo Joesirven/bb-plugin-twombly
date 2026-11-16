@@ -1,6 +1,7 @@
 import { experimental_defineHostEntry } from "@get-bb/plugin-sdk";
 import { hostContract, loginSchema } from "./contract.js";
 import { readLibrary, readThumbnails } from "./library.js";
+import { daemonOrigin } from "./port.js";
 import { runTwombly } from "./runner.js";
 
 export default experimental_defineHostEntry({
@@ -34,7 +35,7 @@ export default experimental_defineHostEntry({
         throw new Error(
           "Twombly could not start. Run bb twombly status for details.",
         );
-      const response = await fetch("http://127.0.0.1:4747/cli/login", {
+      const response = await fetch(`${daemonOrigin()}/cli/login`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ cwd, app: "bb" }),

@@ -15,6 +15,9 @@ describe("Twombly sign-in boundary", () => {
     "javascript:alert(1)",
     "http://twombly.app/auth/machine/start",
     "https://twombly.app/other",
+    "https://twombly.app/auth/machine/start?state=test&challenge=test&port=80",
+    "https://twombly.app/auth/machine/start?state=test&challenge=test&port=4748x",
+    "https://twombly.app/auth/machine/start?state=test&challenge=test",
   ])("rejects unexpected authentication destinations: %s", (url) => {
     expect(loginSchema.safeParse({ signedIn: false, url }).success).toBe(false);
   });

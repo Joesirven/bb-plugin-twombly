@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { isAbsolute } from "node:path";
+import { twomblyPort } from "./port.js";
 
 const MAX_OUTPUT_BYTES = 512 * 1024;
 
@@ -43,7 +44,7 @@ export async function runTwombly(
           ...process.env,
           TWOMBLY_APP: "bb",
           TWOMBLY_NO_OPEN: "1",
-          TWOMBLY_PORT: "4747",
+          TWOMBLY_PORT: String(twomblyPort()),
           TWOMBLY_ENDPOINT: "https://twombly.app",
         },
         stdio: ["ignore", "pipe", "pipe"],

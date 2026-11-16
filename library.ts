@@ -1,6 +1,6 @@
 import { z } from "zod";
+import { daemonOrigin } from "./port.js";
 
-export const DAEMON_ORIGIN = "http://127.0.0.1:4747";
 const THUMBNAIL_PATH = /^\/thumb\/[a-z2-9]{12}\.webp(\?v=[A-Za-z0-9_-]{1,64})?$/;
 const MAX_THUMBNAIL_BYTES = 256 * 1024;
 
@@ -113,7 +113,7 @@ export function normalizeLibrary(
 }
 
 async function daemonJson(path: string, signal: AbortSignal) {
-  const response = await fetch(DAEMON_ORIGIN + path, { signal });
+  const response = await fetch(daemonOrigin() + path, { signal });
   if (!response.ok)
     throw new Error(`Twombly answered ${response.status} for ${path}.`);
   return response.json();
@@ -121,7 +121,7 @@ async function daemonJson(path: string, signal: AbortSignal) {
 
 export async function readLibrary(signal: AbortSignal): Promise<HostLibrary> {
   try {
-    const health = await fetch(`${DAEMON_ORIGIN}/health`, {
+    const health = await fetch(`${daemonOrigin()}/health`, {
       signal: AbortSignal.any([signal, AbortSignal.timeout(2_000)]),
     });
     if (!health.ok) return { running: false };
@@ -140,7 +140,7 @@ export async function readThumbnails(paths: string[], signal: AbortSignal) {
   return Promise.all(
     paths.map(async (path) => {
       try {
-        const response = await fetch(DAEMON_ORIGIN + path, { signal });
+        const response = await fetch(daemonOrigin() + path, { signal });
         const type = response.headers.get("content-type") ?? "";
         if (!response.ok || !type.startsWith("image/"))
           return { path, dataUrl: null };
