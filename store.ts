@@ -172,7 +172,10 @@ export function createLibraryStore(db: StoreDatabase) {
     state(): LibraryState {
       const accounts = db
         .prepare(
-          `SELECT id, email, name, refreshed_at FROM twombly_accounts ORDER BY refreshed_at DESC`,
+          `SELECT id, email, name, refreshed_at FROM twombly_accounts
+           WHERE NOT EXISTS (SELECT 1 FROM twombly_hosts WHERE status = 'signed-in')
+              OR id IN (SELECT account_id FROM twombly_hosts WHERE status = 'signed-in')
+           ORDER BY refreshed_at DESC`,
         )
         .all() as AccountRow[];
       const canvases = db
@@ -213,14 +216,14 @@ export function createLibraryStore(db: StoreDatabase) {
     findCanvas(query: string) {
       const rows = db
         .prepare(
-          `SELECT * FROM twombly_canvases WHERE url = ? OR lower(name) = lower(?) ORDER BY updated_at DESC`,
+          `SELECT * FROM twombly_canvases WHERE (url = ? OR lower(name) = lower(?)) AND (NOT EXISTS (SELECT 1 FROM twombly_hosts WHERE status = 'signed-in') OR account_id IN (SELECT account_id FROM twombly_hosts WHERE status = 'signed-in')) ORDER BY updated_at DESC`,
         )
         .all(query, query) as CanvasRow[];
       if (rows.length > 0) return rows.map(toCanvas);
       return (
         db
           .prepare(
-            `SELECT * FROM twombly_canvases WHERE instr(lower(name), lower(?)) > 0 ORDER BY updated_at DESC LIMIT 10`,
+            `SELECT * FROM twombly_canvases WHERE instr(lower(name), lower(?)) > 0 AND (NOT EXISTS (SELECT 1 FROM twombly_hosts WHERE status = 'signed-in') OR account_id IN (SELECT account_id FROM twombly_hosts WHERE status = 'signed-in')) ORDER BY updated_at DESC LIMIT 10`,
           )
           .all(query) as CanvasRow[]
       ).map(toCanvas);

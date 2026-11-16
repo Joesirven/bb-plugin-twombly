@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   definePluginApp,
   useBbNavigate,
@@ -199,6 +199,8 @@ function CanvasCard({
 
 function CanvasLibraryPanel() {
   const rpc = useRpc<typeof rpcContract>();
+  const rpcRef = useRef(rpc);
+  rpcRef.current = rpc;
   const navigate = useBbNavigate();
   const [state, setState] = useState<LibraryState | null>(null);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
@@ -208,12 +210,12 @@ function CanvasLibraryPanel() {
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => {
     try {
-      setState(await rpc.call("library", {}));
+      setState(await rpcRef.current.call("library", {}));
       setError(null);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     }
-  }, [rpc]);
+  }, []);
   useEffect(() => {
     void load();
   }, [load]);
@@ -231,7 +233,7 @@ function CanvasLibraryPanel() {
     void (async () => {
       const found: Record<string, string> = {};
       for (let index = 0; index < missing.length; index += 100) {
-        const rows = await rpc.call("thumbnails", {
+        const rows = await rpcRef.current.call("thumbnails", {
           urls: missing.slice(index, index + 100),
         });
         for (const row of rows) found[row.url] = row.dataUrl;
@@ -242,7 +244,7 @@ function CanvasLibraryPanel() {
     return () => {
       cancelled = true;
     };
-  }, [missingKey, rpc]);
+  }, [missingKey]);
   function chooseView(next: ViewMode) {
     setView(next);
     try {
@@ -253,7 +255,7 @@ function CanvasLibraryPanel() {
     setBusy(true);
     setError(null);
     try {
-      setState(await rpc.call("refreshLibrary", {}));
+      setState(await rpcRef.current.call("refreshLibrary", {}));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {

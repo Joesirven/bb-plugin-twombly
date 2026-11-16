@@ -120,4 +120,23 @@ describe("library sync", () => {
     expect(readThumbnails).toHaveBeenCalledTimes(1);
     expect(readThumbnails.mock.calls[0]![0]).toBe("full");
   });
+  it("shows only the account a machine is signed in to now", async () => {
+    const store = makeStore();
+    store.replaceAccount({ id: "old", email: null, name: "Old" }, [canvas("Old board", 1)], 1);
+    const refresh = createLibrarySync({
+      store,
+      listHosts: async () => [{ id: "mac", name: "Mac" }],
+      readLibrary: async () => ({
+        running: true,
+        account: { id: "new", email: null, name: "New" },
+        canvases: [canvas("New board", 2)],
+      }),
+      readThumbnails: async () => [],
+      now: () => 3,
+      warn: () => {},
+    });
+    await refresh();
+    expect(store.state().accounts.map((account) => account.id)).toEqual(["new"]);
+    expect(store.findCanvas("board").map((item) => item.name)).toEqual(["New board"]);
+  });
 });
