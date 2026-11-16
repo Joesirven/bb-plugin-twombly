@@ -83,4 +83,41 @@ describe("library sync", () => {
     expect(state.hosts[0]!.status).toBe("signed-out");
     expect(state.accounts[0]!.canvases).toHaveLength(1);
   });
+  it("merges one account seen on two machines instead of letting the last machine win", async () => {
+    const store = makeStore();
+    const account = { id: "user-1", email: null, name: "Person" };
+    const readThumbnails = vi.fn(async (_hostId: string, paths: string[]) =>
+      paths.map((path) => ({ path, dataUrl: "data:image/webp;base64,AA" })),
+    );
+    const refresh = createLibrarySync({
+      store,
+      listHosts: async () => [
+        { id: "full", name: "Full" },
+        { id: "bare", name: "Bare" },
+      ],
+      readLibrary: async (hostId): Promise<HostLibrary> =>
+        hostId === "full"
+          ? { running: true, account, canvases: [canvas("Alpha", 5), canvas("Beta", 6)] }
+          : {
+              running: true,
+              account,
+              canvases: [
+                { ...canvas("Alpha", 5), thumbnailPath: null },
+                { ...canvas("Gamma", 7), thumbnailPath: null },
+              ],
+            },
+      readThumbnails,
+      now: () => 9,
+      warn: () => {},
+    });
+    await refresh();
+    const canvases = store.state().accounts[0]!.canvases;
+    expect(canvases.map((item) => [item.name, item.thumbnailPath !== null])).toEqual([
+      ["Gamma", false],
+      ["Beta", true],
+      ["Alpha", true],
+    ]);
+    expect(readThumbnails).toHaveBeenCalledTimes(1);
+    expect(readThumbnails.mock.calls[0]![0]).toBe("full");
+  });
 });
